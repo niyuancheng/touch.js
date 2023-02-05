@@ -7,4 +7,4 @@
 let div = document.createElement("div")
 div.addEventListener("singleTap",(e)=>{})
 ```
-3. 完善的扩展，只要使用该库提供的魔改版document对象去操作DOM操作，内部会对其产生的DOM元素进行接管和扩展，在其基础上添加必要的属性和函数，但是绝不会影响原来其他属性的使用！
+3. 完善的扩展，只要使用该库提供的魔改版document对象去操作DOM，内部会对其产生的DOM元素进行接管和扩展，在其基础上添加必要的属性和函数，但是绝不会影响原来其他属性的使用！
