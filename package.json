@@ -1,6 +1,6 @@
 {
-  "name": "touch.js",
-  "version": "1.0.0",
+  "name": "ntouch.js",
+  "version": "1.0.2",
   "description": "新一代的移动端手势库，It's Silky and Active!!!!",
   "main": "./lib/index.js",
   "scripts": {

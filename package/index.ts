@@ -71,3 +71,6 @@ document.getElementById = getElementById;
 document.getElementsByClassName = getElementsByClassName;
 document.getElementsByTagName = getElementsByTagName;
 export default document;
+
+export * from "./types";
+export * from "./wrap/wrap";

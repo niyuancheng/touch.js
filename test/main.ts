@@ -2,9 +2,11 @@ import document from "../package/index"
 import { SingleTapEvent, DoubleTapEvent } from "../package/types"
 import "./main.less"
 
+document.createElement("video")
 let pos = document.getElementById("pos")
 let size = document.getElementById("size");
 let angles = document.getElementById("angle");
+
 (angles?.children[0] as HTMLElement).innerText = "default";
 let box = document.getElementById("box")!;
 

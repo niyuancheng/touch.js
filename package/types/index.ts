@@ -59,10 +59,6 @@ export type ExternalSVGElementTagNameMap = {
   }
 }
 
-
-
-
-
 // export type ExternalEventListenerOrEventListenerObject = EventListenerOrEventListenerObject |
 
 export type Point = {

@@ -21,7 +21,7 @@ export function createElement(
   tagName: string,
   options?: ElementCreationOptions
 ): ExternalHTMLElement {
-  let dom = fn1.call(this, tagName, options);
+  let dom = fn1.call(window.document, tagName, options);
   let prototype = (dom as any).__proto__;
   let proto = Object.create(prototype);
   proto.addEventListener = addEventListener;
