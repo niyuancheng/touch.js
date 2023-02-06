@@ -4,8 +4,8 @@ import "./main.less"
 
 let pos = document.getElementById("pos")
 let size = document.getElementById("size");
-
-
+let angles = document.getElementById("angle");
+(angles?.children[0] as HTMLElement).innerText = "default";
 let box = document.getElementById("box")!;
 
 box.addEventListener("singleTap",(e: SingleTapEvent) => {
@@ -59,6 +59,7 @@ box.addEventListener("pintchOver",(e)=>{
 
 box.addEventListener("rotate",(e)=>{
     let angle = e.angle;
+    (angles?.children[0] as HTMLElement).innerText = angle + "";
     let center = e.touches[0];
     let dx = center.clientX - parseInt(box.style.left);
     let dy = center.clientY - parseInt(box.style.top);
