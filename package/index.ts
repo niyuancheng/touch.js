@@ -242,7 +242,6 @@ export function addEventListener(
   function pintchOrRotate() {
     let prevV: Vector = { x: 0, y: 0 };
     ctx.addEventListener("touchstart", (e: TouchEvent) => {
-      e.preventDefault();
       if (e.touches.length > 1) {
         let v1 = e.touches[0];
         let v2 = e.touches[1];
@@ -254,7 +253,6 @@ export function addEventListener(
     });
 
     ctx.addEventListener("touchmove", (e: TouchEvent) => {
-      e.preventDefault();
       if (e.touches.length > 1) {
         if (e.touches.length > 1) {
           let v1 = e.touches[0];
@@ -289,7 +287,6 @@ export function addEventListener(
 
     ctx.addEventListener("touchend", (e: TouchEvent) => {
       //ToDo
-      e.preventDefault();
     });
   }
 
