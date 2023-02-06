@@ -5,6 +5,7 @@ import { getElementsByTagName } from "./override/getElementsByTagName";
 import {
   DoubleTapEvent,
   ExternalDocument,
+  ExternalHTMLElement,
   ExternalTouchEvent,
   FastSlideEvent,
   MoveEvent,
@@ -17,9 +18,16 @@ import {
 import { computeAngle, computeDistance, computeVectorLen } from "./utils";
 const prototype = HTMLElement.prototype;
 
-export function addEventListener<K extends keyof WindowEventMap>(event:K, listener: (this: Window, ev: WindowEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-export function addEventListener<K extends keyof ExternalTouchEvent>(event: K,listener: (this:Window ,ev: ExternalTouchEvent[K]) => any): void;
-export function addEventListener(event: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) {
+export function addEventListener<K extends keyof ExternalTouchEvent>(
+  event: K,
+  listener: (this: HTMLElement, ev: ExternalTouchEvent[K]) => any,
+  options?: boolean | AddEventListenerOptions
+): void;
+export function addEventListener(
+  event: string,
+  listener: EventListenerOrEventListenerObject,
+  options?: boolean | AddEventListenerOptions
+) {
   let ctx = this;
   let tapTimer: number | null = null;
   let longTapTimer: number | null = null;
@@ -30,7 +38,6 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     let isDoubleTap = false;
     let betweenTime = 0;
     ctx.addEventListener("touchstart", (e: TouchEvent) => {
-      e.preventDefault();
       startTime = Date.now();
       if (event === "longTap") {
         longTapTimer = window.setTimeout(() => {
@@ -49,7 +56,6 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
       }
     });
     ctx.addEventListener("touchmove", (e: TouchEvent) => {
-      e.preventDefault();
       isMove = true;
       if (longTapTimer) {
         window.clearTimeout(longTapTimer);
@@ -57,7 +63,6 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
       }
     });
     ctx.addEventListener("touchend", (e: TouchEvent) => {
-      e.preventDefault();
       let interval = Date.now() - startTime;
 
       if (longTapTimer) {
@@ -67,8 +72,8 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
       if (interval < 150 && !isMove) {
         if (event === "singleTap" && isDoubleTap === false) {
           tapTimer = window.setTimeout(() => {
-            let ev: SingleTapEvent = {...e, interval}
-            if(listener instanceof Function) {
+            let ev: SingleTapEvent = { ...e, interval };
+            if (listener instanceof Function) {
               listener(ev);
             } else {
               listener.handleEvent(ev);
@@ -76,8 +81,8 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
           }, 150);
         } else if (event === "doubleTap" && isDoubleTap === true) {
           tapTimer = window.setTimeout(() => {
-            let ev: DoubleTapEvent = {...e, interval: betweenTime}
-            if(listener instanceof Function) {
+            let ev: DoubleTapEvent = { ...e, interval: betweenTime };
+            if (listener instanceof Function) {
               listener(ev);
             } else {
               listener.handleEvent(ev);
@@ -100,13 +105,11 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     let dx = 0,
       dy = 0;
     ctx.addEventListener("touchstart", (e: TouchEvent) => {
-      e.preventDefault();
       pos.x = e.touches[0].clientX;
       pos.y = e.touches[0].clientY;
     });
 
     ctx.addEventListener("touchmove", (e: TouchEvent) => {
-      e.preventDefault();
       isMove = true;
       let x = e.touches[0].clientX;
       let y = e.touches[0].clientY;
@@ -117,10 +120,10 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
         (event === "moveRight" && dx > 0) ||
         (event === "moveTop" && dy < 0) ||
         (event === "moveDown" && dy > 0) ||
-        (event === "move")
+        event === "move"
       ) {
-        let ev: MoveEvent = {...e, startPos: pos,deltaX: dx, deltaY:dy}
-        if(listener instanceof Function) {
+        let ev: MoveEvent = { ...e, startPos: pos, deltaX: dx, deltaY: dy };
+        if (listener instanceof Function) {
           listener(ev);
         } else {
           listener.handleEvent(ev);
@@ -129,20 +132,20 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     });
 
     ctx.addEventListener("touchend", (e: TouchEvent) => {
-      e.preventDefault();
       let end = {
         x: pos.x + dx,
-        y: pos.y + dy
-      }
-      if ((isMove) && (
-        (event === "swipeLeft" && dx < 0) ||
-        (event === "swipeRight" && dx > 0) ||
-        (event === "swipeTop" && dy < 0) ||
-        (event === "swipeDown" && dy > 0) ||
-        (event === "swipe") 
-      )) {
-        let ev: SwipeEvent = {...e, startPos:pos,endPos: end }
-        if(listener instanceof Function) {
+        y: pos.y + dy,
+      };
+      if (
+        isMove &&
+        ((event === "swipeLeft" && dx < 0) ||
+          (event === "swipeRight" && dx > 0) ||
+          (event === "swipeTop" && dy < 0) ||
+          (event === "swipeDown" && dy > 0) ||
+          event === "swipe")
+      ) {
+        let ev: SwipeEvent = { ...e, startPos: pos, endPos: end };
+        if (listener instanceof Function) {
           listener(ev);
         } else {
           listener.handleEvent(ev);
@@ -153,20 +156,21 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
   }
 
   function fastSlide() {
-    let lastTime;
+    let lastTime = 0;
+    let startTime = 0;
     // 初始的x,y坐标
     let x = 0,
       y = 0;
     let lastPos = { x: 0, y: 0 };
-    let startPos = {x: 0,y: 0}
+    let startPos = { x: 0, y: 0 };
     let speed = [];
     ctx.addEventListener("touchstart", (e: TouchEvent) => {
-      e.preventDefault();
       lastTime = Date.now();
+      startTime = Date.now();
       startPos = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
-      }
+      };
       lastPos = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
@@ -175,9 +179,8 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     });
 
     ctx.addEventListener("touchmove", (e: TouchEvent) => {
-      e.preventDefault();
       let now = Date.now();
-      if (now - lastTime === 10) {
+      if (now - lastTime >= 10) {
         let distance = computeDistance(
           e.touches[0].clientX,
           lastPos.x,
@@ -194,9 +197,10 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     });
 
     ctx.addEventListener("touchend", (e: TouchEvent) => {
-      e.preventDefault();
       let sum = 0;
-      let index = 0;
+      let index = 1;
+      lastTime = Date.now();
+      console.log(speed);
       for (let i = speed.length - 1; i >= 0; i--) {
         if (speed[i] > speed[i - 1]) {
           sum += speed[i] - speed[i - 1];
@@ -205,64 +209,75 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
       }
       let dx = lastPos.x - x;
       let dy = lastPos.y - y;
-      if ((sum / index) * 100 >= 7) {
+      if ((sum / index) * 100 >= 10 && speed[speed.length - 1] >= 20) {
         if (
           (dx <= 0 && event === "fastSlideLeft") ||
           (dx >= 0 && event === "fastSlideRight") ||
           (dy >= 0 && event === "fastSlideDown") ||
           (dy <= 0 && event === "fastSlideTop") ||
-          (event === "fastSlide")
+          event === "fastSlide"
         ) {
-          let ev: FastSlideEvent = {...e, startPos: startPos, endPos:lastPos}
-          if(listener instanceof Function) {
+          let ev: FastSlideEvent = {
+            ...e,
+            startPos: startPos,
+            endPos: lastPos,
+            interval: lastTime - startTime,
+            lastSpeed: speed[speed.length - 1],
+          };
+          if (listener instanceof Function) {
             listener(ev);
           } else {
             listener.handleEvent(ev);
           }
         }
       }
+      speed = [];
+      lastPos = { x: 0, y: 0 };
+      startPos = { x: 0, y: 0 };
+      lastTime = 0;
+      startTime = 0;
     });
   }
 
   function pintchOrRotate() {
-    let prevV:Vector = {x:0,y:0};
-    ctx.addEventListener("touchstart",(e: TouchEvent) => {
+    let prevV: Vector = { x: 0, y: 0 };
+    ctx.addEventListener("touchstart", (e: TouchEvent) => {
       e.preventDefault();
-      if(e.touches.length > 1) {
+      if (e.touches.length > 1) {
         let v1 = e.touches[0];
         let v2 = e.touches[1];
         prevV = {
           x: v2.clientX - v1.clientX,
-          y: v2.clientY - v1.clientY
-        }
+          y: v2.clientY - v1.clientY,
+        };
       }
-    })
+    });
 
-    ctx.addEventListener("touchmove",(e: TouchEvent) => {
+    ctx.addEventListener("touchmove", (e: TouchEvent) => {
       e.preventDefault();
-      if(e.touches.length > 1) {
-        if(e.touches.length > 1) {
+      if (e.touches.length > 1) {
+        if (e.touches.length > 1) {
           let v1 = e.touches[0];
           let v2 = e.touches[1];
           let V = {
             x: v2.clientX - v1.clientX,
-            y: v2.clientY - v1.clientY
-          }
+            y: v2.clientY - v1.clientY,
+          };
           //利用前后的向量模比计算放大或缩小的倍数
           let scale = computeVectorLen(V) / computeVectorLen(prevV);
-          if(event === "pintch") {
-            let ev: PintchEvent = {...e, scale:scale}
-            if(listener instanceof Function) {
+          if (event === "pintch") {
+            let ev: PintchEvent = { ...e, scale: scale };
+            if (listener instanceof Function) {
               listener(ev);
             } else {
               listener.handleEvent(ev);
             }
           }
           // 计算出拖动时旋转的角度
-          let angle = computeAngle(prevV,V);
-          if(event === "rotate") {
-            let ev: RotateEvent = {...e, angle}
-            if(listener instanceof Function) {
+          let angle = computeAngle(prevV, V);
+          if (event === "rotate") {
+            let ev: RotateEvent = { ...e, angle };
+            if (listener instanceof Function) {
               listener(ev);
             } else {
               listener.handleEvent(ev);
@@ -270,12 +285,12 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
           }
         }
       }
-    })
+    });
 
-    ctx.addEventListener("touchend",(e: TouchEvent) => {
+    ctx.addEventListener("touchend", (e: TouchEvent) => {
       //ToDo
       e.preventDefault();
-    })
+    });
   }
 
   switch (event) {
@@ -308,16 +323,16 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
       pintchOrRotate();
       break;
     default:
-      prototype.addEventListener.call(ctx, event, listener, options);
+      prototype.addEventListener.call(window.document, event, listener, options);
   }
 }
 
-let doc = Object.create(Document.prototype) as ExternalDocument;
+let body = Object.create(window.document.body) as ExternalHTMLElement;
+body.addEventListener = addEventListener;
+let document = {body:body} as ExternalDocument;
+document.createElement = createElement;
+document.getElementById = getElementById;
+document.getElementsByClassName = getElementsByClassName;
+document.getElementsByTagName = getElementsByTagName;
 
-doc.createElement = createElement
-doc.getElementById = getElementById;
-doc.getElementsByClassName = getElementsByClassName
-doc.getElementsByTagName = getElementsByTagName
-
-
-export default doc;
+export default document;

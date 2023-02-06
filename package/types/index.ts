@@ -25,12 +25,21 @@ export type MoblieEvent =
   | "fastSlideDown"
   | "pintch"
   | "rotate";
+export interface ExternalElement extends Element {
+  addEventListener: typeof addEventListener;
+}
 
-export type ExternalHTMLElement = {
-  [P in keyof HTMLElement]: HTMLElement[P];
-} & {
+export interface ExternalHTMLElement extends HTMLElement{
   addEventListener: typeof addEventListener;
 };
+
+export interface ExternalDocument extends Document {
+  createElement: typeof createElement;
+  getElementById: typeof getElementById;
+  getElementsByClassName: typeof getElementsByClassName;
+  getElementsByTagName: typeof getElementsByTagName;
+  body: ExternalHTMLElement;
+}
 
 export type ExternalHTMLElementTagNameMap = {
   [K in keyof HTMLElementTagNameMap]: HTMLElementTagNameMap[K] & {
@@ -50,14 +59,9 @@ export type ExternalSVGElementTagNameMap = {
   }
 }
 
-export type ExternalElement = Element & {addEventListener: typeof addEventListener}
 
-export interface ExternalDocument extends Document{
-  createElement: typeof createElement;
-  getElementById: typeof getElementById;
-  getElementsByClassName: typeof getElementsByClassName;
-  getElementsByTagName: typeof getElementsByTagName;
-}
+
+
 
 // export type ExternalEventListenerOrEventListenerObject = EventListenerOrEventListenerObject |
 
@@ -71,7 +75,7 @@ export type Vector = {
   z?: number;
 };
 
-export type ExternalTouchEvent = {
+export interface ExternalTouchEvent extends HTMLElementEventMap {
   singleTap: SingleTapEvent;
   doubleTap: DoubleTapEvent;
   longTap: null;
@@ -112,6 +116,7 @@ export interface MoveEvent extends TouchEvent {
   deltaY: number;
 }
 
+// extends对TouchEvent类型进行扩展
 export interface SwipeEvent extends TouchEvent {
   // 开始的坐标和结束的坐标
   startPos: Point;
@@ -121,6 +126,9 @@ export interface SwipeEvent extends TouchEvent {
 export interface FastSlideEvent extends TouchEvent {
   startPos: Point;
   endPos: Point;
+  interval: number;
+  //最后十毫秒的速度，单位为 px/100ms
+  lastSpeed: number;
 }
 
 export interface PintchEvent extends TouchEvent {
@@ -130,3 +138,4 @@ export interface PintchEvent extends TouchEvent {
 export interface RotateEvent extends TouchEvent {
   angle: number;
 }
+
