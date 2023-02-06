@@ -1,5 +1,5 @@
 import document from "../package/index"
-import { SingleTapEvent, DoubleTapEvent, MoveEvent, SwipeEvent, FastSlideEvent, PintchEvent } from "../package/types"
+import { SingleTapEvent, DoubleTapEvent } from "../package/types"
 import "./main.less"
 
 let box = document.getElementById("box")!;
@@ -16,20 +16,29 @@ let left = box.getBoundingClientRect().left;
 let top = box.getBoundingClientRect().top;
 
 
-box.addEventListener("move",(e :MoveEvent) => {
+// box.addEventListener("touchstart",(e) => {
+//     document.body.addEventListener("move",(e)=>{
+//         console.log(e.deltaX,e.deltaY);
+//         let dx = e.deltaX;
+//         let dy = e.deltaY;
+//         box.style.left = left + dx  + "px";
+//         box.style.top = top + dy  + "px";
+//     })
+// })
+box.addEventListener("move",(e) => {
     let dx = e.deltaX;
     let dy = e.deltaY;
     box.style.left = left + dx  + "px";
     box.style.top = top + dy  + "px";
 })
 
-box.addEventListener("swipe",(e: SwipeEvent) => {
+box.addEventListener("swipe",(e) => {
     console.log("滑动结束", e.endPos)
     left = box.getBoundingClientRect().left;
     top = box.getBoundingClientRect().top;
 })
 
-box.addEventListener("pintch",(e:PintchEvent) => {
+box.addEventListener("pintch",(e) => {
     let scale = e.scale;
     box.style.width = box.clientWidth * scale + "px";
     box.style.height = box.clientHeight * scale + "px";

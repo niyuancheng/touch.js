@@ -16,8 +16,8 @@ import {
   Vector,
 } from "./types";
 import { computeAngle, computeDistance, computeVectorLen } from "./utils";
-const prototype = HTMLElement.prototype;
 
+const fn = HTMLElement.prototype.addEventListener;
 export function addEventListener<K extends keyof ExternalTouchEvent>(
   event: K,
   listener: (this: HTMLElement, ev: ExternalTouchEvent[K]) => any,
@@ -320,7 +320,11 @@ export function addEventListener(
       pintchOrRotate();
       break;
     default:
-      prototype.addEventListener.call(window.document, event, listener, options);
+      if(ctx === document.body) {
+        fn.call(window.document.body,event,listener,options)
+      } else {
+        fn.call(ctx, event, listener, options);
+      }
   }
 }
 
@@ -331,5 +335,4 @@ document.createElement = createElement;
 document.getElementById = getElementById;
 document.getElementsByClassName = getElementsByClassName;
 document.getElementsByTagName = getElementsByTagName;
-
 export default document;
