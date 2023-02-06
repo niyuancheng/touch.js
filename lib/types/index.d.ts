@@ -4,11 +4,19 @@ import { getElementById } from "../override/getElementById";
 import { getElementsByClassName } from "../override/getElementsByClassName";
 import { getElementsByTagName } from "../override/getElementsByTagName";
 export type MoblieEvent = "singleTap" | "doubleTap" | "longTap" | "move" | "moveLeft" | "moveRight" | "moveTop" | "moveDown" | "swipe" | "swipeLeft" | "swipeRight" | "swipeTop" | "swipeDown" | "fastSlide" | "fastSlideLeft" | "fastSlideRight" | "fastSlideTop" | "fastSlideDown" | "pintch" | "rotate";
-export type ExternalHTMLElement = {
-    [P in keyof HTMLElement]: HTMLElement[P];
-} & {
+export interface ExternalElement extends Element {
     addEventListener: typeof addEventListener;
-};
+}
+export interface ExternalHTMLElement extends HTMLElement {
+    addEventListener: typeof addEventListener;
+}
+export interface ExternalDocument extends Document {
+    createElement: typeof createElement;
+    getElementById: typeof getElementById;
+    getElementsByClassName: typeof getElementsByClassName;
+    getElementsByTagName: typeof getElementsByTagName;
+    body: ExternalHTMLElement;
+}
 export type ExternalHTMLElementTagNameMap = {
     [K in keyof HTMLElementTagNameMap]: HTMLElementTagNameMap[K] & {
         addEventListener: typeof addEventListener;
@@ -24,15 +32,6 @@ export type ExternalSVGElementTagNameMap = {
         addEventListener: typeof addEventListener;
     };
 };
-export type ExternalElement = Element & {
-    addEventListener: typeof addEventListener;
-};
-export interface ExternalDocument extends Document {
-    createElement: typeof createElement;
-    getElementById: typeof getElementById;
-    getElementsByClassName: typeof getElementsByClassName;
-    getElementsByTagName: typeof getElementsByTagName;
-}
 export type Point = {
     x: number;
     y: number;
@@ -42,7 +41,7 @@ export type Vector = {
     y: number;
     z?: number;
 };
-export type ExternalTouchEvent = {
+export interface ExternalTouchEvent extends HTMLElementEventMap {
     singleTap: SingleTapEvent;
     doubleTap: DoubleTapEvent;
     longTap: null;
@@ -63,7 +62,7 @@ export type ExternalTouchEvent = {
     fastSlideDown: FastSlideEvent;
     pintch: PintchEvent;
     rotate: RotateEvent;
-};
+}
 export interface SingleTapEvent extends TouchEvent {
     interval: number;
 }
@@ -82,6 +81,8 @@ export interface SwipeEvent extends TouchEvent {
 export interface FastSlideEvent extends TouchEvent {
     startPos: Point;
     endPos: Point;
+    interval: number;
+    lastSpeed: number;
 }
 export interface PintchEvent extends TouchEvent {
     scale: number;
