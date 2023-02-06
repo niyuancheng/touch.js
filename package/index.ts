@@ -3,19 +3,14 @@ import { getElementsByClassName } from "./override/getElementsByClassName";
 import { getElementById } from "./override/getElementById";
 import { getElementsByTagName } from "./override/getElementsByTagName";
 import {
-  DoubleTapEvent,
   ExternalDocument,
   ExternalHTMLElement,
   ExternalTouchEvent,
-  FastSlideEvent,
-  MoveEvent,
-  PintchEvent,
-  RotateEvent,
-  SingleTapEvent,
-  SwipeEvent,
-  Vector,
 } from "./types";
-import { computeAngle, computeDistance, computeVectorLen } from "./utils";
+import { singleOrDoubleOrLongTap } from "./events/SingleOrDoubleOrLongTap";
+import { moveOrSwipe } from "./events/MoveOrSwipe";
+import { fastSlide } from "./events/FastSlide";
+import { pintchOrRotate } from "./events/PintchOrRotate";
 
 const fn = HTMLElement.prototype.addEventListener;
 export function addEventListener<K extends keyof ExternalTouchEvent>(
@@ -29,297 +24,11 @@ export function addEventListener(
   options?: boolean | AddEventListenerOptions
 ) {
   let ctx = this;
-  let tapTimer: number | null = null;
-  let longTapTimer: number | null = null;
-  let lastTapEndTime = -1;
-  function singleOrDoubleOrLongTap() {
-    let isMove = false;
-    let startTime = 0;
-    let isDoubleTap = false;
-    let betweenTime = 0;
-    ctx.addEventListener("touchstart", (e: TouchEvent) => {
-      if (e.touches.length > 1) return;
-      startTime = Date.now();
-      if (event === "longTap") {
-        longTapTimer = window.setTimeout(() => {
-          // ToDo,触发长按事件
-        }, 800);
-      }
-      // 如果lastTapEndTime不小于0的话则表明上一次也发生过点击事件且上一次的单击事件的监听器还未触发，说明两次点击间隔很短，
-      // 但是为了区别是双击还是单击，在第二次点击发生时判断开始点击的时间和上一次点击结束的时间，
-      // 如果间隔很短，说明是双击，此时不应该触发单击事件;如果距离上一次点击间隔很长，表明此次点击是单击
-      if (lastTapEndTime > 0 && startTime - lastTapEndTime < 150) {
-        window.clearTimeout(tapTimer);
-        betweenTime = startTime - lastTapEndTime;
-        tapTimer = null;
-        lastTapEndTime = -1;
-        isDoubleTap = true;
-      }
-    });
-    ctx.addEventListener("touchmove", (e: TouchEvent) => {
-      if (e.touches.length > 1) return;
-      isMove = true;
-      e.preventDefault();
-      if (longTapTimer) {
-        window.clearTimeout(longTapTimer);
-        longTapTimer = null;
-      }
-    });
-    ctx.addEventListener("touchend", (e: TouchEvent) => {
-      if (e.touches.length > 1) return;
-      let interval = Date.now() - startTime;
-      if (longTapTimer) {
-        window.clearTimeout(longTapTimer);
-        longTapTimer = null;
-      }
-      if (interval < 150 && !isMove) {
-        if (event === "singleTap" && isDoubleTap === false) {
-          tapTimer = window.setTimeout(() => {
-            let ev: SingleTapEvent = { ...e, interval };
-            if (listener instanceof Function) {
-              listener(ev);
-            } else {
-              listener.handleEvent(ev);
-            }
-          }, 150);
-        } else if (event === "doubleTap" && isDoubleTap === true) {
-          tapTimer = window.setTimeout(() => {
-            let ev: DoubleTapEvent = { ...e, interval: betweenTime };
-            if (listener instanceof Function) {
-              listener(ev);
-            } else {
-              listener.handleEvent(ev);
-            }
-          });
-        }
-        lastTapEndTime = Date.now();
-      }
-      isMove = false;
-      isDoubleTap = false;
-    });
-  }
-
-  function moveOrSwipe() {
-    let isMove = false;
-    let pos = {
-      x: 0,
-      y: 0,
-    };
-    let dx = 0,
-      dy = 0;
-    ctx.addEventListener("touchstart", (e: TouchEvent) => {
-      if (e.touches.length > 1) return;
-      pos.x = e.touches[0].clientX;
-      pos.y = e.touches[0].clientY;
-    });
-
-    ctx.addEventListener("touchmove", (e: TouchEvent) => {
-      if (e.touches.length > 1) return;
-      isMove = true;
-      e.preventDefault();
-      let x = e.touches[0].clientX;
-      let y = e.touches[0].clientY;
-      dx = x - pos.x;
-      dy = y - pos.y;
-      if (
-        (event === "moveLeft" && dx < 0) ||
-        (event === "moveRight" && dx > 0) ||
-        (event === "moveTop" && dy < 0) ||
-        (event === "moveDown" && dy > 0) ||
-        event === "move"
-      ) {
-        let ev: MoveEvent = { ...e, startPos: pos, deltaX: dx, deltaY: dy };
-        if (listener instanceof Function) {
-          listener(ev);
-        } else {
-          listener.handleEvent(ev);
-        }
-      }
-    });
-
-    ctx.addEventListener("touchend", (e: TouchEvent) => {
-      if (e.touches.length > 1) return;
-      let end = {
-        x: pos.x + dx,
-        y: pos.y + dy,
-      };
-      if (
-        isMove &&
-        ((event === "swipeLeft" && dx < 0) ||
-          (event === "swipeRight" && dx > 0) ||
-          (event === "swipeTop" && dy < 0) ||
-          (event === "swipeDown" && dy > 0) ||
-          event === "swipe")
-      ) {
-        let ev: SwipeEvent = { ...e, startPos: pos, endPos: end };
-        if (listener instanceof Function) {
-          listener(ev);
-        } else {
-          listener.handleEvent(ev);
-        }
-      }
-      isMove = false;
-    });
-  }
-
-  function fastSlide() {
-    let lastTime = 0;
-    let startTime = 0;
-    // 初始的x,y坐标
-    let x = 0,
-      y = 0;
-    let lastPos = { x: 0, y: 0 };
-    let startPos = { x: 0, y: 0 };
-    let speed = [];
-    ctx.addEventListener("touchstart", (e: TouchEvent) => {
-      if (e.touches.length > 1) return;
-      lastTime = Date.now();
-      startTime = Date.now();
-      startPos = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
-      };
-      lastPos = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
-      };
-      (x = lastPos.x), (y = lastPos.y);
-    });
-
-    ctx.addEventListener("touchmove", (e: TouchEvent) => {
-      if (e.touches.length > 1) return;
-      e.preventDefault();
-      let now = Date.now();
-      if (now - lastTime >= 10) {
-        let distance = computeDistance(
-          e.touches[0].clientX,
-          lastPos.x,
-          e.touches[0].clientY,
-          lastPos.y
-        );
-        speed.push(distance / (now - lastTime));
-        lastPos = {
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY,
-        };
-        lastTime = now;
-      }
-    });
-
-    ctx.addEventListener("touchend", (e: TouchEvent) => {
-      if (e.touches.length > 1) return;
-      let sum = 0;
-      let index = 1;
-      lastTime = Date.now();
-      console.log(speed);
-      for (let i = speed.length - 1; i >= 0; i--) {
-        if (speed[i] > speed[i - 1]) {
-          sum += speed[i] - speed[i - 1];
-          index++;
-        } else break;
-      }
-      let dx = lastPos.x - x;
-      let dy = lastPos.y - y;
-      if ((sum / index) * 100 >= 10 && speed[speed.length - 1] >= 20) {
-        if (
-          (dx <= 0 && event === "fastSlideLeft") ||
-          (dx >= 0 && event === "fastSlideRight") ||
-          (dy >= 0 && event === "fastSlideDown") ||
-          (dy <= 0 && event === "fastSlideTop") ||
-          event === "fastSlide"
-        ) {
-          let ev: FastSlideEvent = {
-            ...e,
-            startPos: startPos,
-            endPos: lastPos,
-            interval: lastTime - startTime,
-            lastSpeed: speed[speed.length - 1],
-          };
-          if (listener instanceof Function) {
-            listener(ev);
-          } else {
-            listener.handleEvent(ev);
-          }
-        }
-      }
-      speed = [];
-      lastPos = { x: 0, y: 0 };
-      startPos = { x: 0, y: 0 };
-      lastTime = 0;
-      startTime = 0;
-    });
-  }
-
-  function pintchOrRotate() {
-    let prevV: Vector = { x: 0, y: 0 };
-    let v1, v2;
-    let scale = 1;
-    ctx.addEventListener("touchstart", (e: TouchEvent) => {
-      if (e.touches.length > 1) {
-        v1 = e.touches[0];
-        v2 = e.touches[1];
-        prevV = {
-          x: v2.clientX - v1.clientX,
-          y: v2.clientY - v1.clientY,
-        };
-      }
-    });
-
-    ctx.addEventListener("touchmove", (e: TouchEvent) => {
-      e.preventDefault();
-      if (e.touches.length > 1) {
-        let v1 = e.touches[0];
-        let v2 = e.touches[1];
-        let V = {
-          x: v2.clientX - v1.clientX,
-          y: v2.clientY - v1.clientY,
-        };
-        //利用前后的向量模比计算放大或缩小的倍数
-        scale = computeVectorLen(V) / computeVectorLen(prevV);
-        if (event === "pintch") {
-          let ev: PintchEvent = { ...e, scale: scale };
-          if (listener instanceof Function) {
-            listener(ev);
-          } else {
-            listener.handleEvent(ev);
-          }
-        }
-        // 计算出拖动时旋转的角度
-        let angle = computeAngle(prevV, V);
-        if (event === "rotate") {
-          let ev: RotateEvent = { ...e, angle };
-          if (listener instanceof Function) {
-            listener(ev);
-          } else {
-            listener.handleEvent(ev);
-          }
-        }
-      }
-    });
-
-    ctx.addEventListener("touchend", (e: TouchEvent) => {
-      //ToDo
-
-      // 只要最初的两个手指离开一个就行
-      if([...e.touches].indexOf(v1) === -1 || [...e.touches].indexOf(v2) === -1) {
-        if(event === "pintchOver") {
-          let ev:PintchEvent = { ...e,scale }
-          if (listener instanceof Function) {
-            listener(ev);
-          } else {
-            listener.handleEvent(ev);
-          }
-        }
-      }
-      prevV = { x: 0, y: 0 };
-    });
-  }
-
   switch (event) {
     case "singleTap":
     case "doubleTap":
     case "longTap":
-      singleOrDoubleOrLongTap();
+      singleOrDoubleOrLongTap(ctx,event,listener,options);
       break;
     case "swipe":
     case "swipeLeft":
@@ -331,19 +40,19 @@ export function addEventListener(
     case "moveRight":
     case "moveTop":
     case "moveDown":
-      moveOrSwipe();
+      moveOrSwipe(ctx,event,listener,options);
       break;
     case "fastSlide":
     case "fastSlideLeft":
     case "fastSlideRight":
     case "fastSlideTop":
     case "fastSlideDown":
-      fastSlide();
+      fastSlide(ctx,event,listener,options);
       break;
     case "pintch":
     case "pintchOver":
     case "rotate":
-      pintchOrRotate();
+      pintchOrRotate(ctx,event,listener,options);
       break;
     default:
       if (ctx === document.body) {
