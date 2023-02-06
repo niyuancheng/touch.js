@@ -23,15 +23,9 @@ let top = box.getBoundingClientRect().top;
 
 (size?.children[0] as HTMLElement).innerText = box.clientWidth + "";
 (size?.children[1] as HTMLElement).innerText = box.clientHeight + "";
-// box.addEventListener("touchstart",(e) => {
-//     document.body.addEventListener("move",(e)=>{
-//         console.log(e.deltaX,e.deltaY);
-//         let dx = e.deltaX;
-//         let dy = e.deltaY;
-//         box.style.left = left + dx  + "px";
-//         box.style.top = top + dy  + "px";
-//     })
-// })
+let width = box.clientWidth;
+let height = box.clientHeight;
+
 box.addEventListener("move",(e) => {
     let dx = e.deltaX;
     let dy = e.deltaY;
@@ -50,11 +44,16 @@ box.addEventListener("swipe",(e) => {
 
 box.addEventListener("pintch",(e) => {
     let scale = e.scale;
-    box.style.width = box.clientWidth * scale + "px";
-    box.style.height = box.clientHeight * scale  + "px";
+    box.style.width = width * scale + "px";
+    box.style.height = height * scale  + "px";
     (document.getElementById("scale")?.children[0] as HTMLElement).innerText = scale + "";
     (size?.children[0] as HTMLElement).innerText = box.clientWidth + "";
     (size?.children[1] as HTMLElement).innerText = box.clientHeight + "";
-    
+
+})
+
+box.addEventListener("pintchOver",(e)=>{
+    width = box.clientWidth;
+    height = box.clientHeight;
 })
 

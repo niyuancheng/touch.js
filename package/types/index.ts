@@ -95,6 +95,7 @@ export interface ExternalTouchEvent extends HTMLElementEventMap {
   fastSlideTop: FastSlideEvent;
   fastSlideDown: FastSlideEvent;
   pintch: PintchEvent;
+  pintchOver: PintchEvent;
   rotate: RotateEvent;
 };
 

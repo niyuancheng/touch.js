@@ -252,10 +252,12 @@ export function addEventListener(
 
   function pintchOrRotate() {
     let prevV: Vector = { x: 0, y: 0 };
+    let v1, v2;
+    let scale = 1;
     ctx.addEventListener("touchstart", (e: TouchEvent) => {
       if (e.touches.length > 1) {
-        let v1 = e.touches[0];
-        let v2 = e.touches[1];
+        v1 = e.touches[0];
+        v2 = e.touches[1];
         prevV = {
           x: v2.clientX - v1.clientX,
           y: v2.clientY - v1.clientY,
@@ -273,7 +275,7 @@ export function addEventListener(
           y: v2.clientY - v1.clientY,
         };
         //利用前后的向量模比计算放大或缩小的倍数
-        let scale = computeVectorLen(V) / computeVectorLen(prevV);
+        scale = computeVectorLen(V) / computeVectorLen(prevV);
         if (event === "pintch") {
           let ev: PintchEvent = { ...e, scale: scale };
           if (listener instanceof Function) {
@@ -297,6 +299,18 @@ export function addEventListener(
 
     ctx.addEventListener("touchend", (e: TouchEvent) => {
       //ToDo
+
+      // 只要最初的两个手指离开一个就行
+      if([...e.touches].indexOf(v1) === -1 || [...e.touches].indexOf(v2) === -1) {
+        if(event === "pintchOver") {
+          let ev:PintchEvent = { ...e,scale }
+          if (listener instanceof Function) {
+            listener(ev);
+          } else {
+            listener.handleEvent(ev);
+          }
+        }
+      }
       prevV = { x: 0, y: 0 };
     });
   }
@@ -327,6 +341,7 @@ export function addEventListener(
       fastSlide();
       break;
     case "pintch":
+    case "pintchOver":
     case "rotate":
       pintchOrRotate();
       break;
