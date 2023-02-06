@@ -30,6 +30,7 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     let isDoubleTap = false;
     let betweenTime = 0;
     ctx.addEventListener("touchstart", (e: TouchEvent) => {
+      e.preventDefault();
       startTime = Date.now();
       if (event === "longTap") {
         longTapTimer = window.setTimeout(() => {
@@ -48,6 +49,7 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
       }
     });
     ctx.addEventListener("touchmove", (e: TouchEvent) => {
+      e.preventDefault();
       isMove = true;
       if (longTapTimer) {
         window.clearTimeout(longTapTimer);
@@ -55,6 +57,7 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
       }
     });
     ctx.addEventListener("touchend", (e: TouchEvent) => {
+      e.preventDefault();
       let interval = Date.now() - startTime;
 
       if (longTapTimer) {
@@ -97,11 +100,13 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     let dx = 0,
       dy = 0;
     ctx.addEventListener("touchstart", (e: TouchEvent) => {
+      e.preventDefault();
       pos.x = e.touches[0].clientX;
       pos.y = e.touches[0].clientY;
     });
 
     ctx.addEventListener("touchmove", (e: TouchEvent) => {
+      e.preventDefault();
       isMove = true;
       let x = e.touches[0].clientX;
       let y = e.touches[0].clientY;
@@ -124,6 +129,7 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     });
 
     ctx.addEventListener("touchend", (e: TouchEvent) => {
+      e.preventDefault();
       let end = {
         x: pos.x + dx,
         y: pos.y + dy
@@ -154,6 +160,7 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     let startPos = {x: 0,y: 0}
     let speed = [];
     ctx.addEventListener("touchstart", (e: TouchEvent) => {
+      e.preventDefault();
       lastTime = Date.now();
       startPos = {
         x: e.touches[0].clientX,
@@ -167,6 +174,7 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     });
 
     ctx.addEventListener("touchmove", (e: TouchEvent) => {
+      e.preventDefault();
       let now = Date.now();
       if (now - lastTime === 10) {
         let distance = computeDistance(
@@ -185,6 +193,7 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     });
 
     ctx.addEventListener("touchend", (e: TouchEvent) => {
+      e.preventDefault();
       let sum = 0;
       let index = 0;
       for (let i = speed.length - 1; i >= 0; i--) {
@@ -217,6 +226,7 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
   function pintchOrRotate() {
     let prevV:Vector = {x:0,y:0};
     ctx.addEventListener("touchstart",(e: TouchEvent) => {
+      e.preventDefault();
       if(e.touches.length > 1) {
         let v1 = e.touches[0];
         let v2 = e.touches[1];
@@ -228,6 +238,7 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
     })
 
     ctx.addEventListener("touchmove",(e: TouchEvent) => {
+      e.preventDefault();
       if(e.touches.length > 1) {
         if(e.touches.length > 1) {
           let v1 = e.touches[0];
@@ -262,6 +273,7 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
 
     ctx.addEventListener("touchend",(e: TouchEvent) => {
       //ToDo
+      e.preventDefault();
     })
   }
 
