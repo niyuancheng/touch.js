@@ -63,7 +63,7 @@ box.addEventListener("rotate",(e)=>{
     let center = e.touches[0];
     let dx = center.clientX - parseInt(box.style.left);
     let dy = center.clientY - parseInt(box.style.top);
-    box.style.transformOrigin = `${dx/box.clientWidth*100}% ${dy/box.clientHeight*100}%`
-    box.style.transform = `rotate${angle}`
+    // box.style.transformOrigin = `${dx/box.clientWidth*100}% ${dy/box.clientHeight*100}%`
+    box.style.transform = `rotate${angle}deg`
 
 })
