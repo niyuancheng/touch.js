@@ -5,7 +5,7 @@
   "main": "./lib/index.js",
   "scripts": {
     "build:tsc": "tsc",
-    "dev:tsc": "tsc -w",
+    "dev": "tsc -w",
     "build:webpack": "webpack",
     "serve": "webpack serve"
   },
