@@ -57,6 +57,7 @@ export function addEventListener(
     });
     ctx.addEventListener("touchmove", (e: TouchEvent) => {
       isMove = true;
+      e.preventDefault();
       if (longTapTimer) {
         window.clearTimeout(longTapTimer);
         longTapTimer = null;
@@ -180,6 +181,7 @@ export function addEventListener(
     });
 
     ctx.addEventListener("touchmove", (e: TouchEvent) => {
+      e.preventDefault();
       let now = Date.now();
       if (now - lastTime >= 10) {
         let distance = computeDistance(
@@ -254,6 +256,7 @@ export function addEventListener(
     });
 
     ctx.addEventListener("touchmove", (e: TouchEvent) => {
+      e.preventDefault();
       if (e.touches.length > 1) {
         if (e.touches.length > 1) {
           let v1 = e.touches[0];
