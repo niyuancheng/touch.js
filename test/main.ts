@@ -31,7 +31,7 @@ box.addEventListener("swipe",(e: SwipeEvent) => {
 
 box.addEventListener("pintch",(e:PintchEvent) => {
     let scale = e.scale;
-    box.style.width = box.clientWidth + box.clientWidth * scale + "px";
-    box.style.height = box.clientHeight + box.clientHeight * scale + "px";
+    box.style.width = box.clientWidth * scale + "px";
+    box.style.height = box.clientHeight * scale + "px";
 })
 

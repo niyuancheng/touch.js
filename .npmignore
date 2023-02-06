@@ -1,0 +1,9 @@
+/node_modules/
+/package/
+/public/
+/test/
+.gitignore
+.npmignore
+index.html
+webpack.config.js
+tsconfig.json
