@@ -111,6 +111,7 @@ export function addEventListener(
 
     ctx.addEventListener("touchmove", (e: TouchEvent) => {
       isMove = true;
+      e.preventDefault();
       let x = e.touches[0].clientX;
       let y = e.touches[0].clientY;
       dx = x - pos.x;
