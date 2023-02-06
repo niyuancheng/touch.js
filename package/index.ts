@@ -134,13 +134,13 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
         x: pos.x + dx,
         y: pos.y + dy
       }
-      if (
+      if ((isMove) && (
         (event === "swipeLeft" && dx < 0) ||
         (event === "swipeRight" && dx > 0) ||
         (event === "swipeTop" && dy < 0) ||
         (event === "swipeDown" && dy > 0) ||
         (event === "swipe") 
-      ) {
+      )) {
         let ev: SwipeEvent = {...e, startPos:pos,endPos: end }
         if(listener instanceof Function) {
           listener(ev);
@@ -148,6 +148,7 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
           listener.handleEvent(ev);
         }
       }
+      isMove = false;
     });
   }
 
