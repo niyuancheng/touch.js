@@ -125,8 +125,8 @@ export function addEventListener(event: string, listener: EventListenerOrEventLi
 
     ctx.addEventListener("touchend", (e: TouchEvent) => {
       let end = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY
+        x: pos.x + dx,
+        y: pos.y + dy
       }
       if (
         (event === "swipeLeft" && dx < 0) ||
