@@ -138,4 +138,3 @@ export interface PintchEvent extends TouchEvent {
 export interface RotateEvent extends TouchEvent {
   angle: number;
 }
-

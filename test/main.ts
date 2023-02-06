@@ -50,9 +50,9 @@ box.addEventListener("swipe",(e) => {
 
 box.addEventListener("pintch",(e) => {
     let scale = e.scale;
-    box.style.width = box.clientWidth * scale / 50 + "px";
-    box.style.height = box.clientHeight * scale / 50 + "px";
-    
+    // box.style.width = box.clientWidth * scale + "px";
+    // box.style.height = box.clientHeight * scale  + "px";
+    (document.getElementById("scale")?.children[0] as HTMLElement).innerText = scale + "";
     (size?.children[0] as HTMLElement).innerText = box.clientWidth + "";
     (size?.children[1] as HTMLElement).innerText = box.clientHeight + "";
     
