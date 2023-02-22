@@ -1,5 +1,5 @@
-import { ExternalDocument, ExternalTouchEvent } from "./types";
-export declare function addEventListener<K extends keyof ExternalTouchEvent>(event: K, listener: (this: HTMLElement, ev: ExternalTouchEvent[K]) => any, options?: boolean | AddEventListenerOptions): void;
+import { ExternalDocument, ExternalTouchEvent, ListenerConfig } from "./types";
+export declare function addEventListener<K extends keyof ExternalTouchEvent>(event: K, listener: (this: HTMLElement, ev: ExternalTouchEvent[K]) => any, options?: boolean | AddEventListenerOptions | ListenerConfig): void;
 declare let document: ExternalDocument;
 export default document;
 export * from "./types";

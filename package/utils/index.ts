@@ -1,4 +1,4 @@
-import { Vector } from "../types";
+import { ListenerConfig, Vector } from "../types";
 
 export function computeDistance(x1: number,y1: number,x2: number,y2: number): number {
     return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
@@ -21,4 +21,8 @@ export function computeAngle(v1:Vector,v2:Vector): number {
         return angle * 180 / Math.PI;
     }
     return 0;
+}
+
+export function isListenerConfig(value: any): value is ListenerConfig {
+    return typeof value === "object" && value.stopPropagation !== null;
 }

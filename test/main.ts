@@ -1,8 +1,8 @@
-import document from "../package/index"
+import document, { wrap } from "../package/index"
 import { SingleTapEvent, DoubleTapEvent } from "../package/types"
 import "./main.less"
 
-document.createElement("video")
+
 let pos = document.getElementById("pos")
 let size = document.getElementById("size");
 let angles = document.getElementById("angle");
@@ -12,6 +12,7 @@ let box = document.getElementById("box")!;
 
 box.addEventListener("singleTap",(e: SingleTapEvent) => {
     console.log(e.interval,"单击成功");
+    console.log(e.e.target)
 })
 box.addEventListener("doubleTap",(e: DoubleTapEvent) => {
     console.log(e.interval, "双击成功")
@@ -67,5 +68,17 @@ box.addEventListener("rotate",(e)=>{
     let dy = center.clientY - parseInt(box.style.top);
     // box.style.transformOrigin = `${dx/box.clientWidth*100}% ${dy/box.clientHeight*100}%`
     box.style.transform = `rotate${angle}deg`
+})
 
+wrap(box).addEventListener("singleTap",(e)=>{
+    console.log("box tap!!!!");
+})
+
+let video = window.document.querySelector("video")!;
+wrap(video).addEventListener("singleTap",(e) => {
+    console.log("singletap")
+})
+
+wrap(video).addEventListener("doubleTap",(e) => {
+    console.log("doubletap");
 })

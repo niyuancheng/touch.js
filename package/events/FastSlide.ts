@@ -1,11 +1,11 @@
-import { ExternalHTMLElement, FastSlideEvent } from "../types";
-import { computeDistance } from "../utils";
+import { ExternalHTMLElement, FastSlideEvent, ListenerConfig } from "../types";
+import { computeDistance, isListenerConfig } from "../utils";
 
 export function fastSlide(
   ctx: ExternalHTMLElement,
   event: string,
   listener: EventListenerOrEventListenerObject,
-  options?: boolean | AddEventListenerOptions
+  options?: boolean | AddEventListenerOptions | ListenerConfig
 ) {
   let lastTime = 0;
   let startTime = 0;
@@ -15,7 +15,13 @@ export function fastSlide(
   let lastPos = { x: 0, y: 0 };
   let startPos = { x: 0, y: 0 };
   let speed = [];
+  let ifStop = false;
+  if(isListenerConfig(options)) {
+    ifStop = options.stopPropagation;
+  }
+  
   ctx.addEventListener("touchstart", (e: TouchEvent) => {
+    if(ifStop) e.stopPropagation()
     if (e.touches.length > 1) return;
     lastTime = Date.now();
     startTime = Date.now();
@@ -31,6 +37,7 @@ export function fastSlide(
   });
 
   ctx.addEventListener("touchmove", (e: TouchEvent) => {
+    if(ifStop) e.stopPropagation()
     if (e.touches.length > 1) return;
     e.preventDefault();
     let now = Date.now();
@@ -51,6 +58,7 @@ export function fastSlide(
   });
 
   ctx.addEventListener("touchend", (e: TouchEvent) => {
+    if(ifStop) e.stopPropagation()
     if (e.touches.length > 1) return;
     let sum = 0;
     let index = 1;
@@ -78,6 +86,7 @@ export function fastSlide(
           endPos: lastPos,
           interval: lastTime - startTime,
           lastSpeed: speed[speed.length - 1],
+          e
         };
         if (listener instanceof Function) {
           listener(ev);

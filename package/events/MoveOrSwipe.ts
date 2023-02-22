@@ -1,10 +1,11 @@
-import { ExternalHTMLElement, MoveEvent, SwipeEvent } from "../types";
+import { ExternalHTMLElement, ListenerConfig, MoveEvent, SwipeEvent } from "../types";
+import { isListenerConfig } from "../utils";
 
 export function moveOrSwipe(
   ctx: ExternalHTMLElement,
   event: string,
   listener: EventListenerOrEventListenerObject,
-  options?: boolean | AddEventListenerOptions
+  options?: boolean | AddEventListenerOptions | ListenerConfig
 ) {
   let isMove = false;
   let pos = {
@@ -13,13 +14,20 @@ export function moveOrSwipe(
   };
   let dx = 0,
     dy = 0;
+    let ifStop = false;
+
+  if(isListenerConfig(options)) {
+    ifStop = options.stopPropagation;
+  }
   ctx.addEventListener("touchstart", (e: TouchEvent) => {
+    if(ifStop) e.stopPropagation()
     if (e.touches.length > 1) return;
     pos.x = e.touches[0].clientX;
     pos.y = e.touches[0].clientY;
   });
 
   ctx.addEventListener("touchmove", (e: TouchEvent) => {
+    if(ifStop) e.stopPropagation()
     if (e.touches.length > 1) return;
     isMove = true;
     e.preventDefault();
@@ -34,7 +42,7 @@ export function moveOrSwipe(
       (event === "moveDown" && dy > 0) ||
       event === "move"
     ) {
-      let ev: MoveEvent = { ...e, startPos: pos, deltaX: dx, deltaY: dy };
+      let ev: MoveEvent = { ...e, startPos: pos, deltaX: dx, deltaY: dy, e };
       if (listener instanceof Function) {
         listener(ev);
       } else {
@@ -44,6 +52,7 @@ export function moveOrSwipe(
   });
 
   ctx.addEventListener("touchend", (e: TouchEvent) => {
+    if(ifStop) e.stopPropagation()
     if (e.touches.length > 1) return;
     let end = {
       x: pos.x + dx,
@@ -57,7 +66,7 @@ export function moveOrSwipe(
         (event === "swipeDown" && dy > 0) ||
         event === "swipe")
     ) {
-      let ev: SwipeEvent = { ...e, startPos: pos, endPos: end };
+      let ev: SwipeEvent = { ...e, startPos: pos, endPos: end, e };
       if (listener instanceof Function) {
         listener(ev);
       } else {

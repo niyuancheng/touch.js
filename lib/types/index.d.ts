@@ -66,28 +66,38 @@ export interface ExternalTouchEvent extends HTMLElementEventMap {
 }
 export interface SingleTapEvent extends TouchEvent {
     interval: number;
+    e: TouchEvent;
 }
 export interface DoubleTapEvent extends TouchEvent {
     interval: number;
+    e: TouchEvent;
 }
 export interface MoveEvent extends TouchEvent {
     startPos: Point;
     deltaX: number;
     deltaY: number;
+    e: TouchEvent;
 }
 export interface SwipeEvent extends TouchEvent {
     startPos: Point;
     endPos: Point;
+    e: TouchEvent;
 }
 export interface FastSlideEvent extends TouchEvent {
     startPos: Point;
     endPos: Point;
     interval: number;
     lastSpeed: number;
+    e: TouchEvent;
 }
 export interface PintchEvent extends TouchEvent {
     scale: number;
+    e: TouchEvent;
 }
 export interface RotateEvent extends TouchEvent {
     angle: number;
+    e: TouchEvent;
+}
+export interface ListenerConfig {
+    stopPropagation: boolean;
 }

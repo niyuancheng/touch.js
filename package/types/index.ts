@@ -98,11 +98,13 @@ export interface ExternalTouchEvent extends HTMLElementEventMap {
 export interface SingleTapEvent extends TouchEvent {
   // 单击中从触摸开始到触摸结束持续时间
   interval: number;
+  e: TouchEvent
 }
 
 export interface DoubleTapEvent extends TouchEvent {
   // 两次之间的时长
   interval: number;
+  e: TouchEvent
 }
 
 export interface MoveEvent extends TouchEvent {
@@ -111,6 +113,7 @@ export interface MoveEvent extends TouchEvent {
   deltaX: number;
   // dy,y坐标的变化值
   deltaY: number;
+  e: TouchEvent
 }
 
 // extends对TouchEvent类型进行扩展
@@ -118,6 +121,7 @@ export interface SwipeEvent extends TouchEvent {
   // 开始的坐标和结束的坐标
   startPos: Point;
   endPos: Point;
+  e: TouchEvent
 }
 
 export interface FastSlideEvent extends TouchEvent {
@@ -126,12 +130,20 @@ export interface FastSlideEvent extends TouchEvent {
   interval: number;
   //最后十毫秒的速度，单位为 px/100ms
   lastSpeed: number;
+  e: TouchEvent
 }
 
 export interface PintchEvent extends TouchEvent {
   scale: number;
+  e: TouchEvent
 }
 
 export interface RotateEvent extends TouchEvent {
   angle: number;
+  e: TouchEvent
+}
+
+
+export interface ListenerConfig {
+  stopPropagation: boolean;
 }

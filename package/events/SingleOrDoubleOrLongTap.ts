@@ -1,10 +1,11 @@
-import { DoubleTapEvent, ExternalHTMLElement, SingleTapEvent } from "../types";
+import { DoubleTapEvent, ExternalHTMLElement, ListenerConfig, SingleTapEvent } from "../types";
+import { isListenerConfig } from "../utils";
 
 export function singleOrDoubleOrLongTap(
   ctx: ExternalHTMLElement,
   event: string,
   listener: EventListenerOrEventListenerObject,
-  options?: boolean | AddEventListenerOptions
+  options?: boolean | AddEventListenerOptions | ListenerConfig
 ) {
   let tapTimer: number | null = null;
   let longTapTimer: number | null = null;
@@ -13,7 +14,12 @@ export function singleOrDoubleOrLongTap(
   let startTime = 0;
   let isDoubleTap = false;
   let betweenTime = 0;
+  let ifStop = false;
+  if(isListenerConfig(options)) {
+    ifStop = options.stopPropagation;
+  }
   ctx.addEventListener("touchstart", (e: TouchEvent) => {
+    if(ifStop) e.stopPropagation();
     if (e.touches.length > 1) return;
     startTime = Date.now();
     if (event === "longTap") {
@@ -33,6 +39,7 @@ export function singleOrDoubleOrLongTap(
     }
   });
   ctx.addEventListener("touchmove", (e: TouchEvent) => {
+    if(ifStop) e.stopPropagation();
     if (e.touches.length > 1) return;
     isMove = true;
     e.preventDefault();
@@ -42,6 +49,7 @@ export function singleOrDoubleOrLongTap(
     }
   });
   ctx.addEventListener("touchend", (e: TouchEvent) => {
+    if(ifStop) e.stopPropagation();
     if (e.touches.length > 1) return;
     let interval = Date.now() - startTime;
     if (longTapTimer) {
@@ -51,7 +59,7 @@ export function singleOrDoubleOrLongTap(
     if (interval < 150 && !isMove) {
       if (event === "singleTap" && isDoubleTap === false) {
         tapTimer = window.setTimeout(() => {
-          let ev: SingleTapEvent = { ...e, interval };
+          let ev: SingleTapEvent = { ...e, interval, e };
           if (listener instanceof Function) {
             listener(ev);
           } else {
@@ -60,7 +68,7 @@ export function singleOrDoubleOrLongTap(
         }, 150);
       } else if (event === "doubleTap" && isDoubleTap === true) {
         tapTimer = window.setTimeout(() => {
-          let ev: DoubleTapEvent = { ...e, interval: betweenTime };
+          let ev: DoubleTapEvent = { ...e, interval: betweenTime, e };
           if (listener instanceof Function) {
             listener(ev);
           } else {

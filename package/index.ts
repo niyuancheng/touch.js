@@ -6,6 +6,7 @@ import {
   ExternalDocument,
   ExternalHTMLElement,
   ExternalTouchEvent,
+  ListenerConfig,
 } from "./types";
 import { singleOrDoubleOrLongTap } from "./events/SingleOrDoubleOrLongTap";
 import { moveOrSwipe } from "./events/MoveOrSwipe";
@@ -16,12 +17,12 @@ const fn = HTMLElement.prototype.addEventListener;
 export function addEventListener<K extends keyof ExternalTouchEvent>(
   event: K,
   listener: (this: HTMLElement, ev: ExternalTouchEvent[K]) => any,
-  options?: boolean | AddEventListenerOptions
+  options?: boolean | AddEventListenerOptions | ListenerConfig
 ): void;
 export function addEventListener(
   event: string,
   listener: EventListenerOrEventListenerObject,
-  options?: boolean | AddEventListenerOptions
+  options?: boolean | AddEventListenerOptions | ListenerConfig
 ) {
   let ctx = this;
   switch (event) {
@@ -70,6 +71,7 @@ document.createElement = createElement;
 document.getElementById = getElementById;
 document.getElementsByClassName = getElementsByClassName;
 document.getElementsByTagName = getElementsByTagName;
+Object.setPrototypeOf(document, Document.prototype);
 export default document;
 
 export * from "./types";

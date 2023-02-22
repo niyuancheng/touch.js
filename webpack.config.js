@@ -33,5 +33,6 @@ module.exports = {
         port: 8880,
         open: true
     },
-    mode: "development"
+    mode: "development",
+    devtool: "source-map"
 }
